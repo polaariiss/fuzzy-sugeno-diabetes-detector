@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DiabetaFuzzy — Kalkulator Risiko Diabetes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="logo">
+          <span class="logo-icon">⬡</span>
+          <span class="logo-text">DiabetaFuzzy</span>
+        </div>
+        <p class="header-sub">
+          Sistem Inferensi Fuzzy Sugeno · Deteksi Risiko Diabetes
+        </p>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Seberapa Besar<br /><em>Risiko Diabetes</em><br />Anda?
+        </h1>
+        <p class="hero-desc">
+          Masukkan data kesehatan Anda. Sistem logika fuzzy dengan 32 aturan
+          inferensi Sugeno akan menghitung skor risiko secara akurat.
+        </p>
+      </div>
+      <div class="hero-visual">
+        <div class="gauge-wrap">
+          <svg
+            class="gauge-svg"
+            viewBox="0 0 200 120"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color: #22d3a0" />
+                <stop offset="50%" style="stop-color: #f59e0b" />
+                <stop offset="100%" style="stop-color: #ef4444" />
+              </linearGradient>
+            </defs>
+            <path
+              class="gauge-track"
+              d="M 20 100 A 80 80 0 0 1 180 100"
+              fill="none"
+              stroke="#1e293b"
+              stroke-width="14"
+              stroke-linecap="round"
+            />
+            <path
+              class="gauge-fill"
+              id="gaugeFill"
+              d="M 20 100 A 80 80 0 0 1 180 100"
+              fill="none"
+              stroke="url(#gaugeGrad)"
+              stroke-width="14"
+              stroke-linecap="round"
+              stroke-dasharray="251.2"
+              stroke-dashoffset="251.2"
+            />
+            <line
+              id="gaugeNeedle"
+              x1="100"
+              y1="100"
+              x2="100"
+              y2="28"
+              stroke="#ffffff"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              transform="rotate(-90,100,100)"
+              style="transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)"
+            />
+            <circle cx="100" cy="100" r="5" fill="#fff" />
+            <text x="14" y="118" class="gauge-lbl">0</text>
+            <text x="92" y="20" class="gauge-lbl">50</text>
+            <text x="176" y="118" class="gauge-lbl">100</text>
+          </svg>
+          <div class="gauge-score-wrap">
+            <span class="gauge-score" id="gaugeScore">—</span>
+            <span class="gauge-unit">/ 100</span>
+          </div>
+          <div class="gauge-label-text" id="gaugeLabel">
+            Masukkan data &amp; klik Hitung
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main class="main-container">
+      <!-- FORM -->
+      <div class="form-card">
+        <h2 class="card-title"><span>📊</span> Input Data Kesehatan</h2>
+        <div class="input-grid">
+          <!-- Umur -->
+          <div class="input-group">
+            <label
+              ><span>🎂</span> Umur
+              <span class="input-unit">(tahun, 10–90)</span></label
+            >
+            <div class="slider-row">
+              <input
+                type="range"
+                id="umurSlider"
+                min="10"
+                max="90"
+                value="35"
+                step="1"
+                class="slider"
+                oninput="syncSlider('umur')"
+              />
+              <input
+                type="number"
+                id="umur"
+                min="10"
+                max="90"
+                value="35"
+                class="num-input"
+                oninput="syncNum('umur')"
+              />
+            </div>
+            <div class="membership-bar">
+              <div class="mb-item">
+                <span class="mb-label">Muda</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="umur-muda-fill"></div>
+                </div>
+                <span class="mb-val" id="umur-muda-val">0.00</span>
+              </div>
+              <div class="mb-item">
+                <span class="mb-label">Dewasa</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="umur-dewasa-fill"></div>
+                </div>
+                <span class="mb-val" id="umur-dewasa-val">0.00</span>
+              </div>
+              <div class="mb-item">
+                <span class="mb-label">Tua</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="umur-tua-fill"></div>
+                </div>
+                <span class="mb-val" id="umur-tua-val">0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- BMI -->
+          <div class="input-group">
+            <label
+              ><span>⚖️</span> BMI
+              <span class="input-unit">(kg/m², 10–45)</span></label
+            >
+            <div class="slider-row">
+              <input
+                type="range"
+                id="bmiSlider"
+                min="10"
+                max="45"
+                value="23"
+                step="0.5"
+                class="slider"
+                oninput="syncSlider('bmi')"
+              />
+              <input
+                type="number"
+                id="bmi"
+                min="10"
+                max="45"
+                value="23"
+                step="0.5"
+                class="num-input"
+                oninput="syncNum('bmi')"
+              />
+            </div>
+            <div class="membership-bar">
+              <div class="mb-item">
+                <span class="mb-label">Rendah</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="bmi-rendah-fill"></div>
+                </div>
+                <span class="mb-val" id="bmi-rendah-val">0.00</span>
+              </div>
+              <div class="mb-item">
+                <span class="mb-label">Sedang</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="bmi-sedang-fill"></div>
+                </div>
+                <span class="mb-val" id="bmi-sedang-val">0.00</span>
+              </div>
+              <div class="mb-item">
+                <span class="mb-label">Tinggi</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="bmi-tinggi-fill"></div>
+                </div>
+                <span class="mb-val" id="bmi-tinggi-val">0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gula Darah -->
+          <div class="input-group">
+            <label
+              ><span>🩸</span> Gula Darah Puasa
+              <span class="input-unit">(mg/dL, 60–210)</span></label
+            >
+            <div class="slider-row">
+              <input
+                type="range"
+                id="gulaSlider"
+                min="60"
+                max="210"
+                value="90"
+                step="1"
+                class="slider"
+                oninput="syncSlider('gula')"
+              />
+              <input
+                type="number"
+                id="gula"
+                min="60"
+                max="210"
+                value="90"
+                class="num-input"
+                oninput="syncNum('gula')"
+              />
+            </div>
+            <div class="membership-bar">
+              <div class="mb-item">
+                <span class="mb-label">Normal</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="gula-normal-fill"></div>
+                </div>
+                <span class="mb-val" id="gula-normal-val">0.00</span>
+              </div>
+              <div class="mb-item">
+                <span class="mb-label">Pra</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="gula-pra-fill"></div>
+                </div>
+                <span class="mb-val" id="gula-pra-val">0.00</span>
+              </div>
+              <div class="mb-item">
+                <span class="mb-label">Tinggi</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="gula-tinggi-fill"></div>
+                </div>
+                <span class="mb-val" id="gula-tinggi-val">0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aktivitas -->
+          <div class="input-group">
+            <label
+              ><span>🏃</span> Aktivitas Fisik
+              <span class="input-unit">(menit/minggu, 0–310)</span></label
+            >
+            <div class="slider-row">
+              <input
+                type="range"
+                id="aktivitasSlider"
+                min="0"
+                max="310"
+                value="150"
+                step="5"
+                class="slider"
+                oninput="syncSlider('aktivitas')"
+              />
+              <input
+                type="number"
+                id="aktivitas"
+                min="0"
+                max="310"
+                value="150"
+                class="num-input"
+                oninput="syncNum('aktivitas')"
+              />
+            </div>
+            <div class="membership-bar">
+              <div class="mb-item">
+                <span class="mb-label">Rendah</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="aktivitas-rendah-fill"></div>
+                </div>
+                <span class="mb-val" id="aktivitas-rendah-val">0.00</span>
+              </div>
+              <div class="mb-item">
+                <span class="mb-label">Sedang</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="aktivitas-sedang-fill"></div>
+                </div>
+                <span class="mb-val" id="aktivitas-sedang-val">0.00</span>
+              </div>
+              <div class="mb-item">
+                <span class="mb-label">Tinggi</span>
+                <div class="mb-track">
+                  <div class="mb-fill" id="aktivitas-tinggi-fill"></div>
+                </div>
+                <span class="mb-val" id="aktivitas-tinggi-val">0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="calc-btn-wrap">
+          <button class="calc-btn" id="hitungBtn">▶ &nbsp;Hitung Risiko</button>
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div class="result-card" id="resultCard" style="display: none">
+        <h2 class="card-title"><span>📈</span> Hasil Inferensi Fuzzy Sugeno</h2>
+        <div class="result-top">
+          <div class="result-score-big">
+            <div class="rsb-num" id="resultScore">—</div>
+            <div class="rsb-label">Skor Risiko (0–100)</div>
+          </div>
+          <div class="result-category">
+            <div class="cat-badge" id="catBadge">—</div>
+            <div class="cat-desc" id="catDesc">—</div>
+          </div>
+        </div>
+        <div class="steps-section">
+          <div class="step-block">
+            <div class="step-header">
+              <span class="step-num">01</span
+              ><span class="step-title">Fuzzifikasi</span>
+            </div>
+            <div class="step-body" id="fuzzResult"></div>
+          </div>
+          <div class="step-block">
+            <div class="step-header">
+              <span class="step-num">02</span
+              ><span class="step-title">Inferensi — Aturan Aktif</span>
+            </div>
+            <div class="step-body" id="ruleResult"></div>
+          </div>
+          <div class="step-block">
+            <div class="step-header">
+              <span class="step-num">03</span
+              ><span class="step-title">Defuzzifikasi (Weighted Average)</span>
+            </div>
+            <div class="step-body" id="defuzzResult"></div>
+          </div>
+        </div>
+        <div class="recommendation" id="rekomendasi"></div>
+      </div>
+
+      <!-- RULES -->
+      <div class="rules-card">
+        <h2 class="card-title">
+          <span>📋</span> Basis Aturan Fuzzy (32 Rules)
+        </h2>
+        <div class="rules-grid" id="rulesGrid"></div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      DiabetaFuzzy · Metode Sugeno · Sistem Pakar Kesehatan · 2026
+    </footer>
+
+    <script src="fuzzy.js"></script>
+  </body>
+</html>
